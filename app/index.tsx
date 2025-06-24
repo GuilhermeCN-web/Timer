@@ -2,24 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Animated } from 'react-native';
 
 const TimerApp = () => {
-  const [time, setTime] = useState(0); // Tempo em segundos
+  const [time, setTime] = useState(10); // Tempo em segundos
   const [isRunning, setIsRunning] = useState(true);
   const animatedValue = new Animated.Value(1);
 
-  // Efeito para atualizar o tempo a cada segundo quando o cronômetro está rodando
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+  let interval: NodeJS.Timeout | null = null;
 
-    if (isRunning) {
-      interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
-      }, 1000);
-    } else if (!isRunning && time !== 0) {
-      clearInterval(interval!);
-    }
+  if (isRunning && time > 0) {
+    interval = setInterval(() => {
+      setTime((prevTime) => {
+        if (prevTime <= 1) {
+          setIsRunning(false); // Para o temporizador ao chegar a zero
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+  }
 
-    return () => clearInterval(interval!);
-  }, [isRunning]);
+  return () => clearInterval(interval!);
+}, [isRunning, time]);
 
   useEffect(() => {
     if (isRunning) {
@@ -66,7 +69,7 @@ const TimerApp = () => {
 
       <View style={styles.buttonContainer}>
         <Button title={isRunning ? 'Pausar' : 'Iniciar'} onPress={() => setIsRunning(!isRunning)} />
-        <Button title="Resetar" onPress={() => { setIsRunning(false); setTime(0); }} />
+        <Button title="Resetar" onPress={() => { setIsRunning(false); setTime(10); }} />
       </View>
     </View>
   );
